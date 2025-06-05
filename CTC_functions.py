@@ -77,3 +77,18 @@ def label_error_rate(predicted: list, target: list) -> float:
     ler = distance / len(target)
 
     return ler
+
+def modified_label_sequence(word: str) -> str:
+    """
+    Modify a sequence of labels by adding a blank space at the beginning, at the end,
+    and between each character.
+
+    Args:
+        - word (str): The input sequence of labels.
+    
+    Returns:
+        - str: The modified sequence with '-', that represent a blank spaces added.
+    """
+    # Add '-' between characters, then prepend and append '-'
+    return '-' + '-'.join(word) + '-'
+    
