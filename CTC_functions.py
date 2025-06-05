@@ -1,12 +1,16 @@
 """ 
 Functions list:
 
- - edit_distance(word1: str, word2: str) -> int:
+ - edit_distance(word1: str, word2: str) -> int
 
- - label_error_rate(predicted: list, target: list) -> float:
+ - label_error_rate(predicted: list, target: list) -> float
 
- - modified_label_sequence(word: str) -> str:
+ - modified_label_sequence(word: str) -> str
+
+ - compute_forward_values(probs: np.ndarray, target_sequence: list[int]) -> tuple[np.ndarray, np.ndarray]
 """
+
+import numpy as np
 
 def edit_distance(word1: str, word2: str) -> int:
     """
@@ -94,3 +98,48 @@ def modified_label_sequence(word: str) -> str:
     # Add '-' between characters, then prepend and append '-'
     return '-' + '-'.join(word) + '-'
     
+def compute_forward_values(probs: np.ndarray, target_sequence: list[int]) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Compute the forward values for the CTC loss using dynamic programming.
+
+    Args:
+        - probs : A (T, S) array where probs[t,s] is the probability of the t-th time step being the s-th label.
+        - target_sequence : The target sequence of labels.
+
+    Returns:
+        - alpha: A (T, len(target_sequence)) array of forward values.
+        - C: A length-T array used to normalize alpha at each time step.
+    """
+    assert len(target_sequence) <= probs.shape[1], "Error: Target sequence is too long for the probability matrix"
+
+    T, _ = probs.shape  # Get the number of time steps and states
+
+    len_target = len(target_sequence)
+
+    # Initialize alpha and C
+    alpha = np.zeros((T, len_target))
+    C = np.zeros(T)
+
+    # Base cases
+    if len_target >= 2:
+        alpha[0,1] = probs[0,target_sequence[0]]
+        C[0] = alpha[0,0] + alpha[0,1]
+    else:
+        C[0] = alpha[0,0]
+
+    # Recursion
+    for t in range(1, T):
+        for s in range(len_target): 
+            alpha[t,s] += alpha[t-1, s]
+            if s >= 1:
+                alpha[t,s] += alpha[t-1, s-1]
+            if s >= 2 and target_sequence[s] != target_sequence[s-2]:
+                alpha[t,s] += alpha[t-1, s-2]
+            alpha[t,s] *= probs[t, target_sequence[s]]
+            C[t] += alpha[t,s]
+        
+        # Rescale row
+        if C[t] != 0:
+            alpha[t,:] /= C[t]
+
+    return alpha, C
