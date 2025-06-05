@@ -1,9 +1,11 @@
 """ 
-Functions index:
+Functions list:
 
  - edit_distance(word1: str, word2: str) -> int:
 
  - label_error_rate(predicted: list, target: list) -> float:
+
+ - modified_label_sequence(word: str) -> str:
 """
 
 def edit_distance(word1: str, word2: str) -> int:
