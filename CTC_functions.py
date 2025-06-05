@@ -54,7 +54,8 @@ def edit_distance(word1: str, word2: str) -> int:
 
 def label_error_rate(predicted: list, target: list) -> float:
     """
-    Compute the Label Error Rate (LER) between two sequences.
+    Compute the Label Error Rate (LER) between two sequences:
+        LER(h,S) = 1/|S| sum_{(x,z) in S} ED(h(x),z)/|z|
 
     Args:
         - predicted (list): The predicted sequence of labels.
@@ -64,13 +65,15 @@ def label_error_rate(predicted: list, target: list) -> float:
         - float: The label error rate as a proportion.
     """
     assert len(predicted) == len(target), "Error: The given lists have different size" 
-
+    assert len(predicted)*len(target) != 0, "Error: One of the given lists is empty"
+    assert all(word != '' for word in target), "Error: All elements target must be non-empty strings"
+    
     n = len(predicted)
 
     # Compute the edit distance between the predicted and target sequences
-    distance = sum([edit_distance(p, t) for p, t in zip(predicted, target)])
+    distance = sum([edit_distance(p, t)/len(t) for p, t in zip(predicted, target)])
 
     # Compute the label error rate
-    ler = distance / len(target) if len(target) > 0 else float('inf')
+    ler = distance / len(target)
 
     return ler
