@@ -19,3 +19,26 @@ def alphabet_coding(alphabet: list[str], sequence: Union[list[str], str]) -> lis
 
     # Map each element in the sequence to its corresponding code
     return [coding_f[element] for element in sequence]
+
+
+def alphabet_decoding(alphabet: list[str], sequence: list[int]) -> str:
+    """
+    Decode a sequence of integers back into a string using a custom alphabet.
+
+    Assumes that the encoding used integer values starting from 1 for the first
+    character in the alphabet. The value 0 is assumed to be reserved for 'blank'
+    and is not decoded here.
+
+    Args:
+        alphabet (list[str]): The original list of characters used for encoding.
+        sequence (list[int]): The encoded sequence of integers to decode.
+
+    Returns:
+        str: The decoded string formed by mapping integers back to characters.
+    """
+
+    # Build a dictionary that maps each integer (starting from 1) to the corresponding character
+    decoding_f = {i + 1: key for i, key in enumerate(alphabet)}
+
+    # Convert the list of integers into a string by mapping each integer to its corresponding character
+    return ''.join([decoding_f[element] for element in sequence])
